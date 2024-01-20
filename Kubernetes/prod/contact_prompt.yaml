@@ -1,0 +1,89 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: common-nouns-and-proper-names
+  namespace: data-classification
+  labels:
+    networking.knative.dev/visibility: cluster-local
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/class: "kpa.autoscaling.knative.dev"
+        autoscaling.knative.dev/metric: "rps"
+        autoscaling.knative.dev/target: "30"
+        autoscaling.knative.dev/target-utilization-percentage: "50"
+        autoscaling.knative.dev/min-scale: "1"
+        autoscaling.knative.dev/max-scale: "2"
+        autoscaling.knative.dev/initial-scale: "2"
+        autoscaling.knative.dev/scale-down-delay: "1m"
+    spec:
+      imagePullSecrets:
+        - name: gitlab-whoots-pecherskiy-v
+      containers:
+        - name: common-nouns-and-proper-names-worker
+          image: gitlab.whoots.org:5050/numbuster/data-classification/common_nouns_and_proper_names:1.0.0
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: 4000Mi
+              cpu: 1000m
+            requests:
+              memory: 1000Mi
+              cpu: 500m
+          env:
+            - name: DATABASE_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: DATABASE_HOST
+            - name: DATABASE_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: DATABASE_ROOT_PASSWORD
+            - name: DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: DATABASE_NAME
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: DATABASE_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: DATABASE_PASSWORD
+            - name: DATABASE_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: DATABASE_PORT
+            - name: RABBITMQ_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: RABBITMQ_HOST
+            - name: RABBITMQ_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: RABBITMQ_PORT
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: RABBITMQ_USER
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: RABBITMQ_PASSWORD
+            - name: RABBITMQ_QUEUE
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: RABBITMQ_QUEUE
